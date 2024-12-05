@@ -1,0 +1,78 @@
+### Table booking and Online dilevery ###
+
+import pandas as pd
+import pandas as pd
+
+from google.colab import files
+uploaded = files.upload()  
+filename = next(iter(uploaded.keys()))  
+df = pd.read_csv(filename)  
+print(f"Loaded file: {filename}")
+print(df.head())  
+
+# For Calculating the percentage of restaurants offering table booking and online delivery
+table_booking_percentage = (df['Has Table booking'].value_counts(normalize=True) * 100)
+online_delivery_percentage = (df['Has Online delivery'].value_counts(normalize=True) * 100)
+
+print("Table Booking Percentage:")
+print(table_booking_percentage)
+print("\nOnline Delivery Percentage:")
+print(online_delivery_percentage)
+
+avg_rating_table_booking = df.groupby('Has Table booking')['Aggregate rating'].mean()
+
+print("\nAverage Ratings Based on Table Booking:")
+print(avg_rating_table_booking)
+
+online_delivery_by_price_range = df.groupby(['Price range', 'Has Online delivery']).size().unstack()
+
+print("\nOnline Delivery Availability by Price Range:")
+print(online_delivery_by_price_range)
+
+# For Visualization of the results using Matplotlib , Seaborn
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Visualization: Online Delivery Percentage by Price Range
+online_delivery_by_price_range.plot(kind='bar', stacked=True, figsize=(10, 6))
+plt.title('Online Delivery Availability by Price Range')
+plt.xlabel('Price Range')
+plt.ylabel('Number of Restaurants')
+plt.legend(title='Online Delivery')
+plt.show()
+
+### Price Range Analysis ###
+
+# 1. For determining the most common price range among all restaurants
+most_common_price_range = df['Price range'].mode()[0]
+print(f"The most common price range is: {most_common_price_range}")
+
+# 2. Calculating the average rating for each price range
+avg_rating_by_price_range = df.groupby('Price range')['Aggregate rating'].mean()
+print("\nAverage Rating by Price range:")
+print(avg_rating_by_price_range)
+
+# 3. Identify the color that represents the highest average rating among different price ranges
+# Assuming if there's a "Color" column in the dataset representing each price range
+if 'Color' in df.columns:
+    color_with_highest_rating = df.groupby('Price range')['Aggregate rating'].mean().idxmax()
+    highest_rating_color = df[df['Price range'] == color_with_highest_rating]['Color'].iloc[0]
+    print(f"\nThe color representing the highest average rating is: {highest_rating_color}")
+else:
+    print("\nNo 'Color' column found in the dataset.")
+
+### Feature Engineering ###
+
+# 1. For Extracting the length of the restaurant name and address
+df['Restaurant Name Length'] = df['Restaurant Name'].str.len()
+df['Address Length'] = df['Address'].str.len()
+
+print("\nSample of new features (Name and Address Length):")
+print(df[['Restaurant Name', 'Restaurant Name Length', 'Address', 'Address Length']].head())
+
+# 2. For Encoding 'Has Table Booking' and 'Has Online Delivery'
+df['Has Table Booking'] = df['Has Table booking'].map({'Yes': 1, 'No': 0})
+df['Has Online Delivery'] = df['Has Online delivery'].map({'Yes': 1, 'No': 0})
+
+print("\nSample of encoded features:")
+print(df[['Has Table Booking', 'Has Online Delivery']].head())
